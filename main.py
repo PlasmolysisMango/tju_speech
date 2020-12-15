@@ -25,7 +25,7 @@ def get_classList(type): # 2 有余位；3 已报满；7 未开始
     d = 'page=1&seltype=&level=1'
     data = getDict(d, '&', '=')
     data['selstatus'] = type
-    url = 'http://yjsqd.tongji.edu.cn/Pc/getActivityList.json'
+    url = 'http://gdjt.tongji.edu.cn/Pc/getActivityList.json'
     num = 1
     speech_dict_list = []
     while True:
@@ -48,14 +48,14 @@ def format_class(text):
     for i in lis:
         tmp = i.strip('{}')
         dic = getDict(tmp, ',', ':', '"')
-        if '请勿报名' in dic['activity_name']:
+        if '请勿报名' in dic['activity_name'] or '测试' in dic['activity_name']:
             continue
         dict_lis.append(dic)
     return dict_lis
 
 def single_speech(s_id):
     sleep(1)
-    url = 'http://yjsqd.tongji.edu.cn/Swoole/' #result.json push.json
+    url = 'http://gdjt.tongji.edu.cn/Swoole/' #result.json push.json
     data2 = {'act_id':s_id}
     q_url = url + 'push.json'
     r_url = url + 'result.json'
@@ -69,7 +69,6 @@ def single_speech(s_id):
         q_text = proxy_pool.post_HTMLText(q_url, headers2, cookies, data).encode('utf-8').decode('unicode_escape')
         if '排队' in q_text:
             break
-        sleep(1)
     while True:
         text = proxy_pool.post_HTMLText(r_url, headers, cookies, data2).encode('utf-8').decode('unicode_escape')
         if not '排队' in text:
@@ -80,8 +79,6 @@ def single_speech(s_id):
         return True
     else:
         return False
-
-            
 
 def get_speech(mode = ''):
     file_path = os.path.join('speech.txt')
@@ -137,22 +134,23 @@ def encrypt(text): # nopadding
 def main():
     global headers, cookies, proxy_pool
     h = '''
-   Host: yjsqd.tongji.edu.cn
+   Host: gdjt.tongji.edu.cn
 Connection: keep-alive
-Content-Length: 23
+Content-Length: 12
 Accept: application/json, text/plain, */*
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36
+Agent-Type: pc
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-Origin: http://yjsqd.tongji.edu.cn
-Referer: http://yjsqd.tongji.edu.cn/PC/
+Origin: http://gdjt.tongji.edu.cn
+Referer: http://gdjt.tongji.edu.cn/PC/
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 '''
-    c = 'PHPSESSID=9nrh422ga8turssvcg0u39qfjb; think_language=zh-CN; pwapp_unbs=10191911; pwapp_ext_sid=2030563; pwapp_uname=%E4%BD%95%E6%8B%93; tokens=6648d26956bf5d6b8139ef4f901e3fec; connection_id=a527a5c3063ae6f1749bb0527f2d1819; YXMC=%E7%8E%AF%E5%A2%83%E7%A7%91%E5%AD%A6%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AD%A6%E9%99%A2; IS_YXMC=10191911'
+    c = 'PHPSESSID=bd55k8vh1n15c6912rnmpsuiou; think_language=zh-CN; pwapp_unbs=10191911; pwapp_ext_sid=2030563; pwapp_uname=%E4%BD%95%E6%8B%93; tokens=6648d26956bf5d6b8139ef4f901e3fec; connection_id=435ee6c176e60f745d5699895f79ca68; YXMC=%E7%8E%AF%E5%A2%83%E7%A7%91%E5%AD%A6%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AD%A6%E9%99%A2; IS_YXMC=10191911'
     headers = get_headersDict(h)
     cookies = getDict(c, ';', '=')
     proxy_pool = Proxy_pool()
-    lis = get_speech()
+    lis = get_speech('new')
     lenth = len(lis)
     print('读取课程列表成功！')
 
@@ -165,6 +163,5 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
             if single_speech(s_id):
                 lis.remove(i)
             
-
 if __name__ == '__main__':
     main()
